@@ -1,0 +1,62 @@
+# Generate the Xcode project with XcodeGen:
+#   brew install xcodegen && xcodegen generate && open Watchpost.xcodeproj
+name: Watchpost
+options:
+  bundleIdPrefix: com.vaidehipandya
+  deploymentTarget:
+    iOS: "18.0"
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+packages:
+  WatchpostCore:
+    path: Packages/WatchpostCore
+targets:
+  Watchpost:
+    type: application
+    platform: auto
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: Watchpost
+    dependencies:
+      - package: WatchpostCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vaidehipandya.watchpost
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Watchpost
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        ENABLE_PREVIEWS: YES
+        ENABLE_HARDENED_RUNTIME: YES
+  WatchpostTests:
+    type: bundle.unit-test
+    platform: auto
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: WatchpostTests
+    dependencies:
+      - target: Watchpost
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vaidehipandya.watchpost.tests
+        GENERATE_INFOPLIST_FILE: YES
+        # XcodeGen only emits the macOS host path when the app's platform is literally
+        # macOS; with `platform: auto` it would use the iOS layout for every SDK.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Watchpost.app/Watchpost"
+        "TEST_HOST[sdk=macosx*]": "$(BUILT_PRODUCTS_DIR)/Watchpost.app/Contents/MacOS/Watchpost"
+schemes:
+  Watchpost:
+    build:
+      targets:
+        Watchpost: all
+    test:
+      targets:
+        - WatchpostTests

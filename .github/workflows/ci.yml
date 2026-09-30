@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core-tests:
+    name: WatchpostCore unit tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run package tests
+        run: swift test --package-path Packages/WatchpostCore
+
+  app-build:
+    name: Build app (iOS Simulator + macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild -project Watchpost.xcodeproj -scheme Watchpost \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build
+      - name: Build for macOS
+        run: |
+          xcodebuild -project Watchpost.xcodeproj -scheme Watchpost \
+            -destination 'generic/platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build
